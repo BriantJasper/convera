@@ -1,0 +1,320 @@
+body {
+  background: #101624;
+  min-height: 100vh;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot-btn {
+  position: fixed;
+  top: 24px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  background: #e0e5ec;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 8px 8px 16px #b8bac0, -8px -8px 16px #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1001;
+  transition: box-shadow 0.2s;
+}
+.dot-btn:active {
+  box-shadow: 2px 2px 6px #b8bac0, -2px -2px 6px #ffffff;
+}
+.dot-btn span {
+  width: 6px;
+  height: 6px;
+  background: #6c6f7b;
+  border-radius: 50%;
+  margin: 2px 0;
+  display: block;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(24, 28, 36, 0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #232b3a;
+  color: #fff;
+  border-radius: 24px;
+  box-shadow: 8px 8px 24px #11131a, -8px -8px 24px #2a3242;
+  padding: 32px 28px 24px 28px;
+  width: 95%;
+  max-width: 420px;
+  margin: 0 auto;
+  position: relative;
+  animation: popIn 0.2s;
+}
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.modal-content p {
+  color: #ccc;
+  margin-bottom: 18px;
+}
+
+.radio-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-left: 32px;
+  color: #fff;
+}
+.radio-container input[type="radio"] {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+}
+.custom-radio {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 20px;
+  width: 20px;
+  background: #232b3a;
+  border-radius: 50%;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  transition: box-shadow 0.2s;
+}
+.radio-container input[type="radio"]:checked ~ .custom-radio {
+  box-shadow: inset 2px 2px 6px #b8bac0, inset -2px -2px 6px #ffffff;
+  background: #2563eb;
+}
+.custom-radio:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.radio-container input[type="radio"]:checked ~ .custom-radio:after {
+  display: block;
+}
+.radio-container .custom-radio:after {
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  position: absolute;
+}
+
+textarea {
+  width: 100%;
+  min-height: 60px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #232b3a;
+  color: #fff;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  padding: 10px;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+textarea:focus {
+  box-shadow: 1px 1px 3px #11131a, -1px -1px 3px #2a3242;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+.submit-btn,
+.cancel-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  background: #232b3a;
+  color: #fff;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.submit-btn {
+  background: #2563eb;
+}
+.submit-btn:hover {
+  background: #1741a6;
+}
+.cancel-btn:hover {
+  background: #2a3242;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.report-container {
+  max-width: 480px;
+  width: 100%;
+  margin: 40px auto;
+  background: #1a2332;
+  border-radius: 18px;
+  box-shadow: 8px 8px 24px #131c27, -8px -8px 24px #232b3a;
+  padding: 36px 32px 28px 32px;
+}
+.report-header {
+  margin-bottom: 18px;
+}
+.report-header h2 {
+  color: #fff;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+.report-header p {
+  color: #9ca3af;
+  font-size: 1rem;
+  margin: 0;
+}
+.report-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.report-form label.radio-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-left: 32px;
+  color: #e5e7eb;
+  width: 100%;
+  max-width: 400px;
+  min-width: 220px;
+  justify-content: flex-start;
+  text-align: left;
+}
+.report-form input[type="radio"] {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+}
+.report-form .custom-radio {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 20px;
+  width: 20px;
+  background: #232b3a;
+  border-radius: 50%;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  transition: box-shadow 0.2s;
+}
+.report-form input[type="radio"]:checked ~ .custom-radio {
+  background: #2563eb;
+  box-shadow: 0 0 0 2px #2563eb;
+}
+.report-form .custom-radio:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.report-form input[type="radio"]:checked ~ .custom-radio:after {
+  display: block;
+}
+.report-form .custom-radio:after {
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  position: absolute;
+}
+.report-form textarea {
+  width: 80%;
+  min-width: 220px;
+  max-width: 100%;
+  margin-top: 24px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 12px;
+  background: #232b3a;
+  color: #fff;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  padding: 12px;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+.report-form textarea:focus {
+  box-shadow: 1px 1px 3px #11131a, -1px -1px 3px #2a3242;
+}
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+.submit-btn,
+.cancel-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  background: #232b3a;
+  color: #fff;
+  box-shadow: 2px 2px 6px #11131a, -2px -2px 6px #2a3242;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.submit-btn {
+  background: #2563eb;
+  color: #fff;
+}
+.submit-btn:hover {
+  background: #1741a6;
+}
+.cancel-btn:hover {
+  background: #2a3242;
+}

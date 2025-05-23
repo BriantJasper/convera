@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('avatar')->nullable();
-            $table->text('bio');
+            $table->text('bio')->nullable();
             $table->boolean('is_banned')->default(false);
             $table->rememberToken();
             $table->timestamps();

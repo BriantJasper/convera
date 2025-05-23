@@ -27,7 +27,7 @@ class CommunityFactory extends Factory
             'slug' => Str::slug($name),
             'description' => $this->faker->paragraph,
             'rules' => $this->faker->optional()->paragraphs(2, true),
-            'created_by' => User::factory(),
+            'user_id' => User::inRandomOrder()->first()->id,
         ];
     }
 

@@ -14,7 +14,7 @@ class PostController extends Controller
     public function index()
     {
         return view('posts', [
-            'title' => 'Post Page',
+            'title' => 'Posts',
             'posts' => Post::all()
         ]);
     }
@@ -32,15 +32,26 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        //
+        $post = Post::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'community' => $request->community,
+            'user_id' => auth()->id(),
+        ]);
+    
+        // Redirect to the post list or post page
+        return redirect()->route('posts.index')->with('success', 'Post created successfully!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Post $id, $slug)
     {
-        //
+        return view('post.index', [
+            'title' => 'Post Page',
+            'post' => $id,
+        ]);
     }
 
     /**

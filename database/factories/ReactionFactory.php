@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Comment;
+use App\Models\Reaction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,9 +20,18 @@ class ReactionFactory extends Factory
      */
     public function definition(): array
     {
+        // keep trying random combos until we find one that isn't taken yet
+        do {
+            $userId = User::inRandomOrder()->value('id');
+            $postId = Post::inRandomOrder()->value('id');
+        } while (Reaction::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->exists()
+        );
+
         return [
-            'user_id' => User::factory(),
-            'post_id' => Post::factory(),
+            'user_id' => $userId,
+            'post_id' => $postId,
             'comment_id' => null,
             'type' => $this->faker->randomElement(['like', 'dislike']),
         ];
@@ -29,11 +39,18 @@ class ReactionFactory extends Factory
 
     public function forComment(): Factory
     {
-        return $this->state(function () {
-            return [
-                'post_id' => null,
-                'comment_id' => Comment::factory(),
-            ];
-        });
+        do {
+            $userId    = User::inRandomOrder()->value('id');
+            $commentId = Comment::inRandomOrder()->value('id');
+        } while (Reaction::where('user_id', $userId)
+            ->where('comment_id', $commentId)
+            ->exists()
+        );
+
+        return $this->state(fn() => [
+            'user_id'    => $userId,
+            'post_id'    => null,
+            'comment_id' => $commentId,
+        ]);
     }
 }

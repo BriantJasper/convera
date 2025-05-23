@@ -6,6 +6,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Community;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,10 +21,12 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $title = $this->faker->sentence;
         return [
             'user_id' => User::factory(),
             'community_id' => Community::factory(),
-            'title' => $this->faker->sentence,
+            'title' => $title,
+            'slug' => Str::slug($title),
             'content' => $this->faker->paragraphs(3, true),
             'image' => $this->faker->imageUrl(640, 480, 'technics', true),
             'link' => $this->faker->url,

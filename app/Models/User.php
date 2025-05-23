@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function savedPosts()
+    {
+        return $this->belongsToMany(
+            Post::class,      // related model
+            'saved_posts',    // pivot table name
+            'user_id',        // this model’s FK on pivot
+            'post_id'         // related model’s FK on pivot
+        )->withTimestamps();
+    }
 }

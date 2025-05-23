@@ -1,0 +1,308 @@
+@extends('partials.main')
+
+@section('import-css')
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/neumorphism.css" />
+
+    <style>
+        .create-post-container {
+            max-width: 700px;
+            margin: 30px 100px;
+            padding: 24px;
+            background: #131a27;
+            border-radius: 12px;
+            box-shadow: none;
+        }
+
+        .post-header {
+            margin-bottom: 20px;
+        }
+
+        .post-header h1 {
+            font-size: 1.6rem;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .post-header p {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .community-selector {
+            margin-bottom: 22px;
+        }
+
+        .community-selector label {
+            display: block;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .community-selector select {
+            width: 100%;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1e2635;
+            color: #e5e7eb;
+            font-size: 0.85rem;
+            box-shadow: none;
+            appearance: none;
+        }
+
+        .community-selector .select-wrapper {
+            position: relative;
+        }
+
+        .community-selector .select-wrapper::after {
+            content: "\f078";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
+        .post-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+
+        .post-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background-color: #1e2635;
+            border-radius: 8px;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: none;
+            font-size: 0.85rem;
+        }
+
+        .post-tab.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: none;
+        }
+
+        .post-tab i {
+            margin-right: 6px;
+            font-size: 0.85rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1e2635;
+            color: #e5e7eb;
+            font-size: 0.85rem;
+            box-shadow: none;
+            transition: all 0.2s;
+        }
+
+        .form-group textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .formatting-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .format-btn {
+            flex: none;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e2635;
+            border: none;
+            border-radius: 6px;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+            font-size: 0.85rem;
+        }
+
+        .format-btn:hover {
+            color: #60a5fa;
+            background-color: #2d3748;
+        }
+
+        .format-btn:active {
+            background-color: #1e2635;
+            box-shadow: none;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12x;
+            margin-top: 22px;
+        }
+
+        .post-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 16px;
+        }
+
+        .post-btn {
+            flex: 1 1 0;
+            padding: 0 24px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+        }
+
+        .post-submit {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: none;
+        }
+
+        .post-submit:hover {
+            background-color: #2563eb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .post-submit:active {
+            background-color: #1d4ed8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .post-draft {
+            background-color: #374151;
+            color: #e5e7eb;
+            box-shadow: none;
+        }
+
+        .post-draft:hover {
+            background-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .post-draft:active {
+            background-color: #374151;
+            box-shadow: none;
+        }
+    </style>
+@endsection
+
+@section('container')
+    <div class="container">
+        <div class="create-post-container">
+            <div class="post-header">
+                <h1>Create a New Post</h1>
+                <p>Share your thoughts with the community</p>
+            </div>
+
+            <div class="community-selector">
+                <label for="community">Select Community</label>
+                <div class="select-wrapper">
+                    <select id="community">
+                        <option value="">Choose a community</option>
+                        <option value="technology">Technology</option>
+                        <option value="design">Design</option>
+                        <option value="photography">Photography</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="post-tabs">
+                <div class="post-tab active">
+                    <i class="fa fa-file-text"></i> Text
+                </div>
+                <div class="post-tab"><i class="fa fa-image"></i> Image</div>
+                <div class="post-tab"><i class="fa fa-link"></i> Link</div>
+            </div>
+
+            <form id="postForm">
+                <div class="form-group">
+                    <input type="text" id="postTitle" placeholder="Title" required />
+                </div>
+
+                <div class="form-group">
+                    <div class="formatting-bar">
+                        <button type="button" class="format-btn">
+                            <i class="fa fa-bold"></i>
+                        </button>
+                        <button type="button" class="format-btn">
+                            <i class="fa fa-italic"></i>
+                        </button>
+                        <button type="button" class="format-btn">
+                            <i class="fa fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="format-btn">
+                            <i class="fa fa-list-ol"></i>
+                        </button>
+                        <button type="button" class="format-btn">
+                            <i class="fa fa-code"></i>
+                        </button>
+                    </div>
+                    <textarea id="postContent" placeholder="What's on your mind?" required></textarea>
+                </div>
+
+                <div class="post-buttons">
+                    <button type="submit" class="post-btn post-submit">Post</button>
+                    <button type="button" class="post-btn post-draft">
+                        Save as Draft
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection
+
+@section('import-js')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const postForm = document.getElementById("postForm");
+            const postTabs = document.querySelectorAll(".post-tab");
+
+            postTabs.forEach((tab) => {
+                tab.addEventListener("click", function() {
+                    postTabs.forEach((t) => t.classList.remove("active"));
+                    this.classList.add("active");
+                });
+            });
+
+            postForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                alert("Post created successfully!");
+                window.location.href = "../../index.html";
+            });
+        });
+    </script>
+@endsection

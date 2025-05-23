@@ -1,0 +1,119 @@
+.post-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  
+  .follow-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  .follow-btn.following {
+    background-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: inset 3px 3px 6px #2d65c0, inset -3px -3px 6px #479fff;
+  }
+  
+  .follow-btn.not-following {
+    background-color: #1a2332;
+    color: #3b82f6;
+    box-shadow: 3px 3px 6px #131c27, -3px -3px 6px #2b3647;
+  }
+  
+  .follow-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .follow-btn:active {
+    box-shadow: inset 2px 2px 4px #131c27, inset -2px -2px 4px #2b3647;
+  }
+  
+  .post-actions-menu {
+    position: relative;
+  }
+  
+  .dot-menu-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: #1a2332;
+    color: #9ca3af;
+    transition: all 0.2s ease;
+    box-shadow: 3px 3px 6px #131c27, -3px -3px 6px #2b3647;
+  }
+  
+  .dot-menu-btn:hover {
+    color: #e5e7eb;
+  }
+  
+  .dot-menu-btn:active {
+    box-shadow: inset 2px 2px 4px #131c27, inset -2px -2px 4px #2b3647;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    padding: 8px 0;
+    background-color: #1a2332;
+    border-radius: 12px;
+    box-shadow: 6px 6px 12px #131c27, -6px -6px 12px #2b3647;
+    z-index: 100;
+    width: 160px;
+    overflow: hidden;
+  }
+  
+  .dropdown-menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #e5e7eb;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  
+  .dropdown-menu a:hover {
+    background-color: #20293d;
+  }
+  
+  .dropdown-menu a i {
+    margin-right: 12px;
+    width: 16px;
+    text-align: center;
+    color: #9ca3af;
+  }
+  
+  .relative {
+    position: relative;
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .dropdown-menu:not(.hidden) {
+    animation: fadeIn 0.2s ease forwards;
+  }
+  

@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Test</title>
-</head>
-<body>
-    
-</body>
-</html>
+@extends('partials.main')
+
+@section('container')
+
+<h1>Posts</h1>
+
+
+
+@endsection
