@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupDotMenuButton(button) {
     button.addEventListener("click", function (e) {
       console.log("Dot menu button clicked");
-      e.stopPropagation(); 
+      e.stopPropagation();
 
       document.querySelectorAll(".dropdown-menu").forEach((menu) => {
         if (
@@ -118,7 +118,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (this.classList.contains("save-post")) {
         alert("Post saved!");
       } else if (this.classList.contains("edit-post")) {
-        alert("Edit post feature");
+        const postId =
+          this.closest(".post")?.getAttribute("data-post-id") || "";
+        window.location.href = `pages/posts/edit.html?postId=${encodeURIComponent(
+          postId
+        )}`;
       } else if (this.classList.contains("delete-post")) {
         if (confirm("Are you sure you want to delete this post?")) {
           console.log("Post would be deleted");

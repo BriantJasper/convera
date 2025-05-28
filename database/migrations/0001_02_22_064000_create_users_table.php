@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('password');
             $table->string('avatar')->nullable();
             $table->text('bio')->nullable();
+            $table->string('work')->nullable();
+            $table->string('education')->nullable();
+            $table->string('location')->nullable();
+            $table->string('website')->nullable();
             $table->boolean('is_banned')->default(false);
             $table->rememberToken();
             $table->timestamps();

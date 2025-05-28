@@ -175,11 +175,11 @@ select:focus {
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4),
     -6px -6px 12px rgba(48, 65, 96, 0.1);
   padding: 24px;
-  width: 340px;
+  width: 400px;
   max-width: 95vw;
   position: relative;
   color: #e5e7eb;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .close-modal {

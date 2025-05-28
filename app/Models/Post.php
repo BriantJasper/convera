@@ -31,7 +31,8 @@ class Post extends Model
         return $this->hasMany(Category::class);
     }
 
-    public function community() {
+    public function community()
+    {
         return $this->belongsTo(Community::class);
     }
 
@@ -45,6 +46,10 @@ class Post extends Model
         return $this->hasMany(Reaction::class)->where('type', 'like');
     }
 
+    public function isLikedBy(User $user): bool
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
 
     public function comments()
     {

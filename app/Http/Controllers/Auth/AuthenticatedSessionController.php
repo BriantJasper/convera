@@ -24,11 +24,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
 
-        $request->session()->regenerate();
+            $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->route('home')->with('success', 'Welcome back, ' . Auth::user()->name . '!');
+        } catch (\Illuminate\Auth\AuthenticationException $e) {
+            return redirect()->route('home')
+                ->withErrors(['email' => 'These credentials do not match our records.'])
+                ->withInput()
+                ->with('openModal', 'login');
+        }
     }
 
     /**

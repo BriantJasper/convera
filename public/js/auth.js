@@ -1,117 +1,138 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const tabs = document.querySelectorAll(".tab");
-    const tabContents = document.querySelectorAll(".tab-content");
-  
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", function () {
-        const tabId = this.getAttribute("data-tab");
-  
-        tabs.forEach((t) => t.classList.remove("active"));
-        this.classList.add("active");
-  
-        tabContents.forEach((content) => {
-          content.classList.add("hidden");
+document.addEventListener("DOMContentLoaded", () => {
+    // Show notification if it exists
+    const notification = document.getElementById("notification");
+    if (notification) {
+        setTimeout(() => {
+            notification.classList.add("show");
+        }, 100);
+    }
+
+    // Handle create post buttons for unauthenticated users
+    const createPostButtons = document.querySelectorAll("#createPostBtn");
+    createPostButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const authModal = document.getElementById("authModal");
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+
+            if (authModal) {
+                authModal.classList.remove("hidden");
+                loginForm.classList.remove("hidden");
+                registerForm.classList.add("hidden");
+                document.body.style.overflow = "hidden";
+            }
         });
-  
-        document.getElementById(`${tabId}-form`).classList.remove("hidden");
-      });
     });
-  
-    const loginForm = document.getElementById("loginForm").querySelector("form");
-    if (loginForm) {
-      loginForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-  
-        const email = document.getElementById("login-email").value;
-        const password = document.getElementById("login-password").value;
-        const remember = document.getElementById("remember").checked;
-  
-        console.log("Login Attempt:", { email, password, remember });
-        if (email && password) {
-          const userData = {
-            email,
-            name: "Demo User",
-            avatar: "https://via.placeholder.com/40",
-          };
-  
-          if (remember) {
-            localStorage.setItem("userData", JSON.stringify(userData));
-          } else {
-            sessionStorage.setItem("userData", JSON.stringify(userData));
-          }
-  
-          window.location.href = "../../index.html";
+
+    // Check if we need to open the auth modal
+    const openModalType = document.body.getAttribute("data-open-modal");
+    if (openModalType) {
+        const authModal = document.getElementById("authModal");
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+
+        if (authModal) {
+            authModal.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+
+            if (openModalType === "login") {
+                loginForm.classList.remove("hidden");
+                registerForm.classList.add("hidden");
+            } else if (openModalType === "register") {
+                loginForm.classList.add("hidden");
+                registerForm.classList.remove("hidden");
+            }
         }
-      });
     }
-  
-    const registerForm = document
-      .getElementById("register-form")
-      .querySelector("form");
-    if (registerForm) {
-      registerForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-  
-        const username = document.getElementById("reg-username").value;
-        const email = document.getElementById("reg-email").value;
-        const password = document.getElementById("reg-password").value;
-        const confirmPassword = document.getElementById("reg-confirm").value;
-  
-        console.log("Register Attempt:", { username, email, password });
-  
-        if (password !== confirmPassword) {
-          alert("Passwords do not match!");
-          return;
-        }
-  
-        if (username && email && password) {
-          const userData = {
-            email,
-            name: username,
-            avatar: "https://via.placeholder.com/40",
-          };
-  
-          localStorage.setItem("userData", JSON.stringify(userData));
-  
-          window.location.href = "../../index.html";
-        }
-      });
-    }
-  });
-  
-  document.addEventListener("DOMContentLoaded", () => {
-    const loginForm = document.getElementById("loginForm").querySelector("form");
-    const registerForm = document
-      .getElementById("registerForm")
-      .querySelector("form");
-    const switchToRegister = document.getElementById("switchToRegister");
-    const switchToLogin = document.getElementById("switchToLogin");
+
+    // Get the DIV containers for login and register sections
+    const loginFormContainer = document.getElementById("loginForm");
+    const registerFormContainer = document.getElementById("registerForm");
+
+    // Correctly get the switch links by their HTML IDs
+    const showRegisterLink = document.getElementById("showRegister");
+    const showLoginLink = document.getElementById("showLogin");
+
     const loginBtn = document.getElementById("loginBtn");
     const closeAuthModal = document.getElementById("closeAuthModal");
     const authModal = document.getElementById("authModal");
-  
-    loginBtn.addEventListener("click", () => {
-      authModal.classList.remove("hidden");
-      loginForm.classList.remove("hidden");
-      registerForm.classList.add("hidden");
-      document.body.style.overflow = "hidden";
+
+    if (loginBtn) {
+        loginBtn.addEventListener("click", () => {
+            authModal.classList.remove("hidden");
+            loginFormContainer.classList.remove("hidden"); // Show the login DIV container
+            registerFormContainer.classList.add("hidden"); // Hide the register DIV container
+            document.body.style.overflow = "hidden";
+        });
+    }
+
+    if (closeAuthModal) {
+        closeAuthModal.addEventListener("click", () => {
+            authModal.classList.add("hidden");
+            document.body.style.overflow = "";
+        });
+    }
+
+    // Add click event listener to the modal overlay
+    authModal.addEventListener("click", (e) => {
+        // Only close if clicking directly on the modal overlay (not its children)
+        if (e.target === authModal) {
+            authModal.classList.add("hidden");
+            document.body.style.overflow = "";
+        }
     });
-  
-    closeAuthModal.addEventListener("click", () => {
-      authModal.classList.add("hidden");
-      document.body.style.overflow = "";
-    });
-  
-    switchToRegister.addEventListener("click", (e) => {
-      e.preventDefault();
-      loginForm.classList.add("hidden");
-      registerForm.classList.remove("hidden");
-    });
-  
-    switchToLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      registerForm.classList.add("hidden");
-      loginForm.classList.remove("hidden");
-    });
-  });
-  
+
+    // Ensure the link exists before adding an event listener
+    if (showRegisterLink) {
+        showRegisterLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            loginFormContainer.classList.add("hidden"); // Hide the login DIV container
+            registerFormContainer.classList.remove("hidden"); // Show the register DIV container
+        });
+    }
+
+    // Ensure the link exists before adding an event listener
+    if (showLoginLink) {
+        showLoginLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            registerFormContainer.classList.add("hidden"); // Hide the register DIV container
+            loginFormContainer.classList.remove("hidden"); // Show the login DIV container
+        });
+    }
+
+    // Handle form submissions (your existing code for this seems okay,
+    // assuming the form elements like 'login-email', 'reg-email' are within these containers)
+    const loginFormElement = loginFormContainer.querySelector("form");
+    if (loginFormElement) {
+        loginFormElement.addEventListener("submit", function (e) {
+            // Remove preventDefault to allow form submission
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+            const remember = document.getElementById("remember").checked;
+
+            if (!email || !password) {
+                e.preventDefault();
+                return;
+            }
+        });
+    }
+
+    const registerFormElement = registerFormContainer.querySelector("form");
+    if (registerFormElement) {
+        registerFormElement.addEventListener("submit", function (e) {
+            // Remove the preventDefault and client-side handling
+            // Let the form submit normally to the Laravel backend
+        });
+    }
+});
+
+// Function to dismiss notification
+function dismissNotification() {
+    const notification = document.getElementById("notification");
+    if (notification) {
+        notification.classList.remove("show");
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }
+}

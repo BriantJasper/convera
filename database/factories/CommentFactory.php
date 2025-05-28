@@ -22,7 +22,7 @@ class CommentFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()->id,
             'post_id' => Post::inRandomOrder()->first()->id,
-            'parent_comment_id' => null, // by default top-level comment
+            'parent_id' => null, // by default top-level comment
             'content' => $this->faker->sentence(),
             'edited_at' => $this->faker->optional()->dateTimeBetween('-3 days', 'now'),
         ];

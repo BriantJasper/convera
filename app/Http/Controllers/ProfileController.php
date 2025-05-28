@@ -14,10 +14,23 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+    public function index(Request $request): View
+    {
+        $user = $request->user();
+
+        return view('profile.index', [
+            'title' => 'Profile',
+            'user' => $user,
+            'posts' => $user->posts()->latest()->get(),
+            'mediaPosts' => $user->posts()->whereNotNull('image')->latest()->get(), // Corrected column name
+            'likedPosts' => $user->likedPosts()->latest()->get(),
+        ]);
+    }
     public function edit(Request $request): View
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'title' => 'Profile',
         ]);
     }
 

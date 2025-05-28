@@ -84,6 +84,7 @@ header {
     gap: 20px;
     color: #e5e7eb;
     margin-left: auto;
+    margin-right: 30px;
 }
 
 .header-icons a {
@@ -273,6 +274,19 @@ header {
     color: #e5e7eb;
     outline: none;
     box-shadow: inset 4px 4px 8px #131c27, inset -4px -4px 8px #2b3647;
+}
+
+.post-input-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.post-input-btn input {
+    width: 100%;
+    cursor: pointer;
 }
 
 .post-input input::placeholder {
