@@ -10,11 +10,27 @@ use App\Models\Reaction;
 use App\Models\Community;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'title',
+        'content',
+        'user_id',
+        'community_id',
+        'slug',
+        'image',
+        'link',
+        'category_id'
+    ];
+
+    protected $casts = [
+        'edited_at' => 'datetime',
+    ];
 
     public function tags()
     {
@@ -26,9 +42,9 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function categories()
+    public function category()
     {
-        return $this->hasMany(Category::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function community()

@@ -11,16 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const createPostButtons = document.querySelectorAll("#createPostBtn");
     createPostButtons.forEach((button) => {
         button.addEventListener("click", () => {
-            const authModal = document.getElementById("authModal");
-            const loginForm = document.getElementById("loginForm");
-            const registerForm = document.getElementById("registerForm");
-
-            if (authModal) {
-                authModal.classList.remove("hidden");
-                loginForm.classList.remove("hidden");
-                registerForm.classList.add("hidden");
-                document.body.style.overflow = "hidden";
-            }
+            showAuthModal();
         });
     });
 
@@ -59,10 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (loginBtn) {
         loginBtn.addEventListener("click", () => {
-            authModal.classList.remove("hidden");
-            loginFormContainer.classList.remove("hidden"); // Show the login DIV container
-            registerFormContainer.classList.add("hidden"); // Hide the register DIV container
-            document.body.style.overflow = "hidden";
+            showAuthModal();
         });
     }
 
@@ -134,5 +122,19 @@ function dismissNotification() {
         setTimeout(() => {
             notification.remove();
         }, 300);
+    }
+}
+
+// Function to show auth modal
+function showAuthModal() {
+    const authModal = document.getElementById("authModal");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    if (authModal) {
+        authModal.classList.remove("hidden");
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+        document.body.style.overflow = "hidden";
     }
 }

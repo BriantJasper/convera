@@ -36,7 +36,7 @@
               <h3>Suggested Users</h3>
               <div class="user-suggestion">
                   <div class="user-info">
-                      <img src="https://via.placeholder.com/36" alt="Emma Wilson" />
+                      <img src="{{ asset('images/users.png') }}" alt="Emma Wilson" />
                       <div class="user-details">
                           <span class="username">Emma Wilson</span>
                           <span class="user-role">Designer</span>
@@ -46,7 +46,7 @@
               </div>
               <div class="user-suggestion">
                   <div class="user-info">
-                      <img src="https://via.placeholder.com/36" alt="Mike Johnson" />
+                      <img src="{{ asset('images/users.png') }}" alt="Mike Johnson" />
                       <div class="user-details">
                           <span class="username">Mike Johnson</span>
                           <span class="user-role">Developer</span>

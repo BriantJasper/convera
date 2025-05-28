@@ -125,7 +125,7 @@
                 @forelse ($likedPosts as $post)
                     <div class="post-card">
                         <div class="post-card-header">
-                            <div class="post-date">Liked {{ $post->pivot->created_at->diffForHumans() }}</div>
+                            <div class="post-date">Liked {{ $post->created_at->diffForHumans() }}</div>
                         </div>
                         <div class="post-card-content">
                             {{ $post->content }}

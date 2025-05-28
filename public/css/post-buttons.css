@@ -116,3 +116,48 @@
 .dropdown-menu:not(.hidden) {
     animation: fadeIn 0.2s ease forwards;
 }
+
+.reaction-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.reaction-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.reaction-btn.liked {
+    color: #007bff;
+}
+
+.reaction-btn.liked i {
+    animation: likeAnimation 0.3s ease;
+}
+
+@keyframes likeAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.engagement-action {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.engagement-action span {
+    font-size: 0.9em;
+    color: #666;
+}

@@ -7,33 +7,44 @@ document.addEventListener("DOMContentLoaded", function () {
     const showRegister = document.getElementById("showRegister");
     const showLogin = document.getElementById("showLogin");
 
-    loginBtn.addEventListener("click", function () {
-        authModal.classList.remove("hidden");
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-    });
+    // Only add auth-related event listeners if the elements exist
+    if (loginBtn && authModal) {
+        loginBtn.addEventListener("click", function () {
+            authModal.classList.remove("hidden");
+            if (loginForm) loginForm.classList.remove("hidden");
+            if (registerForm) registerForm.classList.add("hidden");
+        });
+    }
 
-    closeAuthModal.addEventListener("click", function () {
-        authModal.classList.add("hidden");
-    });
-
-    showRegister.addEventListener("click", function (e) {
-        e.preventDefault();
-        loginForm.classList.add("hidden");
-        registerForm.classList.remove("hidden");
-    });
-
-    showLogin.addEventListener("click", function (e) {
-        e.preventDefault();
-        registerForm.classList.add("hidden");
-        loginForm.classList.remove("hidden");
-    });
-
-    authModal.addEventListener("click", function (e) {
-        if (e.target === authModal) {
+    if (closeAuthModal && authModal) {
+        closeAuthModal.addEventListener("click", function () {
             authModal.classList.add("hidden");
-        }
-    });
+        });
+    }
+
+    if (showRegister && loginForm && registerForm) {
+        showRegister.addEventListener("click", function (e) {
+            e.preventDefault();
+            loginForm.classList.add("hidden");
+            registerForm.classList.remove("hidden");
+        });
+    }
+
+    if (showLogin && loginForm && registerForm) {
+        showLogin.addEventListener("click", function (e) {
+            e.preventDefault();
+            registerForm.classList.add("hidden");
+            loginForm.classList.remove("hidden");
+        });
+    }
+
+    if (authModal) {
+        authModal.addEventListener("click", function (e) {
+            if (e.target === authModal) {
+                authModal.classList.add("hidden");
+            }
+        });
+    }
 
     const followButtons = document.querySelectorAll(".follow-btn");
     followButtons.forEach((button) => {
@@ -66,28 +77,67 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Post actions menu functionality
     document.body.addEventListener("click", function (e) {
+        // Handle dot menu button click
         if (e.target.closest(".dot-menu-btn")) {
-            var btn = e.target.closest(".dot-menu-btn");
+            e.preventDefault();
+            e.stopPropagation();
+
+            const btn = e.target.closest(".dot-menu-btn");
+            const menu = btn.parentElement.querySelector(".dropdown-menu");
+
+            // Close all other menus first
+            document
+                .querySelectorAll(".dropdown-menu")
+                .forEach(function (otherMenu) {
+                    if (otherMenu !== menu) {
+                        otherMenu.classList.add("hidden");
+                    }
+                });
+
+            // Toggle the clicked menu
+            if (menu) {
+                menu.classList.toggle("hidden");
+            }
+        }
+
+        // Handle menu item clicks
+        if (e.target.closest(".dropdown-menu a")) {
+            e.preventDefault();
+            e.stopPropagation();
+            const link = e.target.closest(".dropdown-menu a");
+
+            // Handle different menu actions
+            if (link.classList.contains("delete-post")) {
+                const postId = link.dataset.postId;
+                if (confirm("Are you sure you want to delete this post?")) {
+                    // Add delete functionality here
+                    console.log("Deleting post:", postId);
+                }
+            } else if (link.classList.contains("save-post")) {
+                // Add save functionality here
+                console.log("Saving post");
+            } else if (link.classList.contains("hide-post")) {
+                // Add hide functionality here
+                console.log("Hiding post");
+            } else if (link.classList.contains("report-post")) {
+                // Add report functionality here
+                console.log("Reporting post");
+            }
+        }
+
+        // Close menu when clicking outside
+        if (!e.target.closest(".post-actions-menu")) {
             document
                 .querySelectorAll(".dropdown-menu")
                 .forEach(function (menu) {
                     menu.classList.add("hidden");
                 });
-            var menu = btn.parentElement.querySelector(".dropdown-menu");
-            if (menu) {
-                menu.classList.toggle("hidden");
-            }
-            e.stopPropagation();
         }
     });
 
-    document.body.addEventListener("click", function (e) {
-        document.querySelectorAll(".dropdown-menu").forEach(function (menu) {
-            menu.classList.add("hidden");
-        });
-    });
-
+    // Prevent menu from closing when clicking inside it
     document.querySelectorAll(".dropdown-menu").forEach(function (menu) {
         menu.addEventListener("click", function (e) {
             e.stopPropagation();
@@ -250,13 +300,6 @@ document.addEventListener("DOMContentLoaded", function () {
             this.placeholder = "Create a post...";
         });
     }
-
-    postActionButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-            // This redirects to create post page as already implemented
-            window.location.href = "pages/posts/create.html";
-        });
-    });
 
     // Like button functionality
     const likeButtons = document.querySelectorAll(

@@ -1,302 +1,392 @@
+// Modal function - inline version instead of import
+function showModal(modalId) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.error(`Modal with id ${modalId} not found`);
+            resolve(false);
+            return;
+        }
+
+        modal.classList.add("active");
+
+        const cancelBtn = modal.querySelector(".modal-btn.cancel");
+        const confirmBtn = modal.querySelector(".modal-btn.confirm");
+
+        const handleCancel = () => {
+            modal.classList.remove("active");
+            cleanup();
+            resolve(false);
+        };
+
+        const handleConfirm = () => {
+            modal.classList.remove("active");
+            cleanup();
+            resolve(true);
+        };
+
+        const handleEscape = (e) => {
+            if (e.key === "Escape") {
+                handleCancel();
+            }
+        };
+
+        const handleClickOutside = (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        };
+
+        const cleanup = () => {
+            if (cancelBtn) cancelBtn.removeEventListener("click", handleCancel);
+            if (confirmBtn)
+                confirmBtn.removeEventListener("click", handleConfirm);
+            document.removeEventListener("keydown", handleEscape);
+            modal.removeEventListener("click", handleClickOutside);
+        };
+
+        if (cancelBtn) cancelBtn.addEventListener("click", handleCancel);
+        if (confirmBtn) confirmBtn.addEventListener("click", handleConfirm);
+        document.addEventListener("keydown", handleEscape);
+        modal.addEventListener("click", handleClickOutside);
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-  const dotButtons = document.querySelectorAll(".dot-button");
+    // console.log("Initializing post interactions...");
 
-  dotButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const postId = button.getAttribute("data-post-id");
-      const dropdown = document.getElementById(`dropdown-${postId}`);
-      if (dropdown) {
-        dropdown.classList.toggle("hidden");
-      }
+    // Fix: Use correct selector for dot menu buttons
+    const dotButtons = document.querySelectorAll(".dot-menu-btn");
+    // console.log(`Found ${dotButtons.length} dot menu buttons`);
+
+    dotButtons.forEach((button, index) => {
+        button.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // console.log(`Dot menu button ${index} clicked`);
+
+            // Close all other dropdowns first
+            document.querySelectorAll(".dropdown-menu").forEach((dropdown) => {
+                if (dropdown !== button.nextElementSibling) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            // Toggle current dropdown
+            const dropdown = button.nextElementSibling;
+            if (dropdown && dropdown.classList.contains("dropdown-menu")) {
+                dropdown.classList.toggle("hidden");
+                // console.log(`Dropdown toggled for button ${index}`);
+            } else {
+                console.error(`Dropdown not found for button ${index}`);
+            }
+        });
     });
-  });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("Post Interactions JS loaded");
-
-  const followButtons = document.querySelectorAll(".follow-btn");
-  console.log(`Found ${followButtons.length} follow buttons`);
-
-  followButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      console.log("Follow button clicked");
-      const isFollowing = this.classList.contains("following");
-
-      if (isFollowing) {
-        this.classList.remove("following");
-        this.classList.add("not-following");
-        this.textContent = "Follow";
-        console.log("User unfollowed");
-      } else {
-        this.classList.remove("not-following");
-        this.classList.add("following");
-        this.textContent = "Following";
-        console.log("User followed");
-      }
-    });
-  });
-
-  const dotMenuButtons = document.querySelectorAll(
-    "button:has(.fa-ellipsis-v), .dot-menu-btn"
-  );
-  if (dotMenuButtons.length === 0) {
-    const allButtons = document.querySelectorAll("button");
-    const ellipsisButtons = Array.from(allButtons).filter((btn) => {
-      return btn.innerHTML.includes("fa-ellipsis-v");
-    });
-    console.log(`Found ${ellipsisButtons.length} ellipsis buttons as fallback`);
-
-    ellipsisButtons.forEach((button) => {
-      button.classList.add("dot-menu-btn");
-      setupDotMenuButton(button);
-    });
-  } else {
-    console.log(`Found ${dotMenuButtons.length} dot menu buttons`);
-    dotMenuButtons.forEach((button) => {
-      setupDotMenuButton(button);
-    });
-  }
-
-  function setupDotMenuButton(button) {
-    button.addEventListener("click", function (e) {
-      console.log("Dot menu button clicked");
-      e.stopPropagation();
-
-      document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-        if (
-          menu !== this.nextElementSibling &&
-          menu !== this.parentElement.querySelector(".dropdown-menu")
-        ) {
-          menu.classList.add("hidden");
+    // Close dropdowns when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".post-actions-menu")) {
+            document.querySelectorAll(".dropdown-menu").forEach((dropdown) => {
+                dropdown.classList.add("hidden");
+            });
         }
-      });
-
-      const menu =
-        this.nextElementSibling ||
-        this.parentElement.querySelector(".dropdown-menu");
-      if (menu) {
-        menu.classList.toggle("hidden");
-        console.log("Dropdown menu toggled");
-      } else {
-        console.error("No dropdown menu found for this button");
-      }
-    });
-  }
-
-  document.addEventListener("click", function (e) {
-    const menus = document.querySelectorAll(".dropdown-menu");
-    const buttons = document.querySelectorAll(
-      ".dot-menu-btn, button:has(.fa-ellipsis-v)"
-    );
-
-    let clickedOnMenu = false;
-    menus.forEach((menu) => {
-      if (menu.contains(e.target)) clickedOnMenu = true;
     });
 
-    let clickedOnButton = false;
-    buttons.forEach((button) => {
-      if (button.contains(e.target)) clickedOnButton = true;
+    // Handle dropdown menu items
+    const menuItems = document.querySelectorAll(".dropdown-menu a");
+    // console.log(`Found ${menuItems.length} menu items`);
+
+    menuItems.forEach((item) => {
+        item.addEventListener("click", async function (e) {
+            if (this.classList.contains("edit-post")) {
+                // Let the link work normally
+                return true;
+            }
+
+            e.preventDefault();
+
+            // Close dropdown after clicking
+            const dropdown = this.closest(".dropdown-menu");
+            if (dropdown) {
+                dropdown.classList.add("hidden");
+            }
+
+            if (this.classList.contains("save-post")) {
+                sessionStorage.setItem(
+                    "notification",
+                    "Post saved to your bookmarks"
+                );
+                sessionStorage.setItem("notificationType", "success");
+                showNotificationFromStorage();
+            } else if (this.classList.contains("delete-post")) {
+                const postId = this.getAttribute("data-post-id");
+                const postSlug = this.getAttribute("data-post-slug");
+
+                if (postId && postSlug) {
+                    const shouldDelete = await showModal("deleteModal");
+                    if (shouldDelete) {
+                        try {
+                            const response = await fetch(`/posts/${postSlug}`, {
+                                method: "DELETE",
+                                headers: {
+                                    "X-CSRF-TOKEN": document.querySelector(
+                                        'meta[name="csrf-token"]'
+                                    ).content,
+                                    Accept: "application/json",
+                                    "Content-Type": "application/json",
+                                },
+                            });
+
+                            const data = await response.json();
+                            if (data.success) {
+                                sessionStorage.setItem(
+                                    "notification",
+                                    data.message
+                                );
+                                sessionStorage.setItem(
+                                    "notificationType",
+                                    "success"
+                                );
+
+                                const postElement = this.closest(".post");
+                                if (postElement) {
+                                    postElement.remove();
+                                    const commentSection =
+                                        document.querySelector(
+                                            `.comment-section[data-post-id="${postId}"]`
+                                        );
+                                    if (commentSection) {
+                                        commentSection.remove();
+                                    }
+                                } else {
+                                    window.location.href = data.redirect;
+                                }
+                            } else {
+                                sessionStorage.setItem(
+                                    "notification",
+                                    data.message
+                                );
+                                sessionStorage.setItem(
+                                    "notificationType",
+                                    "error"
+                                );
+                                window.location.reload();
+                            }
+                        } catch (error) {
+                            console.error("Error:", error);
+                            sessionStorage.setItem(
+                                "notification",
+                                "An error occurred while deleting the post"
+                            );
+                            sessionStorage.setItem("notificationType", "error");
+                            window.location.reload();
+                        }
+                    }
+                }
+            } else if (this.classList.contains("hide-post")) {
+                const postElement = this.closest(".post");
+                const postId = postElement?.getAttribute("data-post-id");
+
+                if (postElement) {
+                    postElement.style.display = "none";
+                    const commentSection = document.querySelector(
+                        `.comment-section[data-post-id="${postId}"]`
+                    );
+                    if (commentSection) {
+                        commentSection.style.display = "none";
+                    }
+                }
+
+                sessionStorage.setItem(
+                    "notification",
+                    "Post hidden from your feed"
+                );
+                sessionStorage.setItem("notificationType", "success");
+                showNotificationFromStorage();
+            } else if (this.classList.contains("report-post")) {
+                const postElement = this.closest(".post");
+                const postId = postElement?.getAttribute("data-post-id");
+                if (postId) {
+                    window.location.href = `/report/${postId}`;
+                }
+            }
+        });
     });
 
-    if (!clickedOnMenu && !clickedOnButton) {
-      menus.forEach((menu) => {
-        menu.classList.add("hidden");
-      });
+    // Fix comment button functionality
+    const toggleCommentBtns = document.querySelectorAll(".toggle-comments-btn");
+    // console.log(`Found ${toggleCommentBtns.length} comment toggle buttons`);
+
+    toggleCommentBtns.forEach((btn, index) => {
+        // console.log(`Setting up comment button ${index}:`, btn);
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // console.log(`Comment button ${index} clicked`);
+
+            const postId = this.getAttribute("data-post-id");
+            // console.log(`Post ID: ${postId}`);
+
+            if (!postId) {
+                console.error("No post ID found for comment button");
+                return;
+            }
+
+            const commentSection = document.querySelector(
+                `.comment-section[data-post-id="${postId}"]`
+            );
+            // console.log(`Comment section found:`, commentSection);
+
+            if (commentSection) {
+                const isCurrentlyHidden =
+                    commentSection.classList.contains("hidden");
+                commentSection.classList.toggle("hidden");
+
+                // console.log(
+                //     `Comment section ${
+                //         isCurrentlyHidden ? "shown" : "hidden"
+                //     } for post ${postId}`
+                // );
+
+                // Update button appearance
+                const icon = this.querySelector("i");
+                if (icon) {
+                    if (isCurrentlyHidden) {
+                        icon.style.color = "#007bff";
+                        this.classList.add("active");
+                    } else {
+                        icon.style.color = "";
+                        this.classList.remove("active");
+                    }
+                }
+
+                // If showing comments, scroll into view
+                if (isCurrentlyHidden) {
+                    setTimeout(() => {
+                        commentSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                        });
+                    }, 100);
+                }
+            } else {
+                console.error(
+                    `Comment section not found for post ID: ${postId}`
+                );
+                // console.log(
+                //     "Available comment sections:",
+                //     document.querySelectorAll(".comment-section")
+                // );
+            }
+        });
+    });
+
+    // Handle reply toggles
+    const toggleRepliesButtons = document.querySelectorAll(".toggle-replies");
+    toggleRepliesButtons.forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const comment = this.closest(".comment");
+            if (!comment) return;
+
+            let replies = comment.parentElement.querySelector(".replies");
+
+            if (replies) {
+                const isHidden = replies.classList.contains("hidden");
+                replies.classList.toggle("hidden");
+
+                const replyCount = replies.querySelectorAll(".reply").length;
+                this.textContent = isHidden
+                    ? "Hide replies"
+                    : `View replies ${replyCount > 0 ? replyCount : ""}`;
+            }
+        });
+    });
+
+    // Handle comment form submissions
+    const commentForms = document.querySelectorAll(".comment-form");
+    commentForms.forEach((form) => {
+        const textarea = form.querySelector("textarea");
+        const commentBtn = form.querySelector(".comment-btn");
+        const cancelBtn = form.querySelector(".cancel-btn");
+
+        if (commentBtn && textarea) {
+            commentBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                const content = textarea.value.trim();
+
+                if (content) {
+                    // console.log("Submitting comment:", content);
+
+                    // Here you would send to backend
+                    // For now, just clear and show success
+                    textarea.value = "";
+                    sessionStorage.setItem(
+                        "notification",
+                        "Comment posted successfully!"
+                    );
+                    sessionStorage.setItem("notificationType", "success");
+                    showNotificationFromStorage();
+                } else {
+                    sessionStorage.setItem(
+                        "notification",
+                        "Please enter a comment"
+                    );
+                    sessionStorage.setItem("notificationType", "error");
+                    showNotificationFromStorage();
+                }
+            });
+        }
+
+        if (cancelBtn && textarea) {
+            cancelBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                textarea.value = "";
+            });
+        }
+    });
+
+    // Helper function to show notifications
+    function showNotificationFromStorage() {
+        const notification = sessionStorage.getItem("notification");
+        const notificationType = sessionStorage.getItem("notificationType");
+
+        if (notification) {
+            // Remove existing notifications
+            const existingNotifications =
+                document.querySelectorAll(".notification");
+            existingNotifications.forEach((n) => n.remove());
+
+            const notificationDiv = document.createElement("div");
+            notificationDiv.className = `notification ${notificationType}`;
+            notificationDiv.innerHTML = `<span class="message">${notification}</span>`;
+            document.body.appendChild(notificationDiv);
+
+            // Show the notification
+            setTimeout(() => {
+                notificationDiv.style.display = "block";
+                notificationDiv.classList.add("show");
+            }, 100);
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                notificationDiv.classList.remove("show");
+                setTimeout(() => notificationDiv.remove(), 300);
+            }, 3000);
+
+            // Clear from sessionStorage
+            sessionStorage.removeItem("notification");
+            sessionStorage.removeItem("notificationType");
+        }
     }
-  });
 
-  const menuItems = document.querySelectorAll(".dropdown-menu a");
-  menuItems.forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault();
-      console.log(`Menu item clicked: ${this.textContent.trim()}`);
+    // Show any pending notifications from sessionStorage
+    showNotificationFromStorage();
 
-      this.closest(".dropdown-menu").classList.add("hidden");
-
-      if (this.classList.contains("save-post")) {
-        alert("Post saved!");
-      } else if (this.classList.contains("edit-post")) {
-        const postId =
-          this.closest(".post")?.getAttribute("data-post-id") || "";
-        window.location.href = `pages/posts/edit.html?postId=${encodeURIComponent(
-          postId
-        )}`;
-      } else if (this.classList.contains("delete-post")) {
-        if (confirm("Are you sure you want to delete this post?")) {
-          console.log("Post would be deleted");
-        }
-      } else if (this.classList.contains("hide-post")) {
-        alert("Post hidden from your feed");
-      } else if (this.classList.contains("report-post")) {
-        const postId =
-          this.closest(".post")?.getAttribute("data-post-id") || "unknown";
-        window.location.href = `pages/report/report.html?postId=${encodeURIComponent(
-          postId
-        )}`;
-      }
-    });
-  });
-
-  const toggleCommentBtns = document.querySelectorAll(".show-comments-btn");
-  toggleCommentBtns.forEach((btn) => {
-    const commentSection = btn.nextElementSibling?.classList.contains(
-      "comment-section"
-    )
-      ? btn.nextElementSibling
-      : document.querySelector(".comment-section");
-
-    if (btn && commentSection) {
-      btn.addEventListener("click", function () {
-        console.log("Comment toggle button clicked!");
-        commentSection.classList.toggle("hidden");
-        this.textContent = commentSection.classList.contains("hidden")
-          ? "💬 Show Comments"
-          : "💬 Hide Comments";
-        console.log("Comment section visibility toggled");
-      });
-      console.log("Comment toggle event listener added for button:", btn);
-    }
-  });
-
-  const inlineCommentButtons = document.querySelectorAll(
-    ".toggle-comments-btn"
-  );
-
-  inlineCommentButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const postId = this.dataset.postId;
-      const commentSection = document.querySelector(
-        `.comment-section[data-post-id="${postId}"]`
-      );
-      const showBtn = document.querySelector(
-        `.show-comments-btn[data-post-id="${postId}"]`
-      );
-
-      if (commentSection) {
-        commentSection.classList.toggle("hidden");
-
-        if (showBtn) {
-          showBtn.textContent = commentSection.classList.contains("hidden")
-            ? "💬 Show Comments"
-            : "💬 Hide Comments";
-        }
-      }
-    });
-  });
-
-  inlineCommentButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      console.log("Inline comment button clicked");
-
-      const postCard = this.closest(".post");
-      const showBtn = postCard?.querySelector(".show-comments-btn");
-      const commentSection = postCard?.nextElementSibling;
-
-      if (commentSection?.classList.contains("comment-section")) {
-        commentSection.classList.toggle("hidden");
-
-        if (showBtn) {
-          showBtn.textContent = commentSection.classList.contains("hidden")
-            ? "💬 Show Comments"
-            : "💬 Hide Comments";
-        }
-      }
-    });
-  });
-
-  const toggleRepliesButtons = document.querySelectorAll(".toggle-replies");
-  console.log(
-    "Number of reply toggle buttons found:",
-    toggleRepliesButtons.length
-  );
-
-  toggleRepliesButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      console.log("Reply toggle button clicked");
-      const comment = this.closest(".comment");
-      const replies = comment.nextElementSibling;
-
-      console.log("Comment element found:", !!comment);
-      console.log("Next element sibling found:", !!replies);
-      console.log(
-        "Next element has 'replies' class:",
-        replies?.classList.contains("replies")
-      );
-
-      if (replies && replies.classList.contains("replies")) {
-        replies.classList.toggle("hidden");
-        const replyCount = replies.querySelectorAll(".reply").length;
-        this.textContent = replies.classList.contains("hidden")
-          ? `View replies ${replyCount ? replyCount : ""}`
-          : "Hide replies";
-        console.log("Replies visibility toggled");
-      } else {
-        console.error("No valid replies container found for this comment");
-      }
-    });
-  });
-
-  const commentBtns = document.querySelectorAll(".comment-btn");
-  console.log("Comment buttons found:", commentBtns.length);
-
-  commentBtns.forEach((commentBtn) => {
-    const cancelBtn = commentBtn.parentElement.querySelector(".cancel-btn");
-    const commentInput =
-      commentBtn
-        .closest(".comment-actions")
-        ?.parentElement?.querySelector("textarea") ||
-      commentBtn.closest(".comment-form")?.querySelector("textarea");
-    const commentsList = document.querySelector(".comments-list");
-
-    console.log("Comment button found:", !!commentBtn);
-    console.log("Cancel button found:", !!cancelBtn);
-    console.log("Comment input found:", !!commentInput);
-    console.log("Comments list found:", !!commentsList);
-
-    if (commentBtn && commentInput && commentsList) {
-      commentBtn.addEventListener("click", function () {
-        console.log("Comment button clicked");
-        const commentText = commentInput.value.trim();
-        if (commentText === "") {
-          console.log("Comment text is empty, not adding");
-          return;
-        }
-
-        const newComment = document.createElement("div");
-        newComment.className = "comment";
-        newComment.innerHTML = `
-            <img src="/api/placeholder/40/40" alt="Your Profile" class="comment-profile-img" />
-            <div class="comment-content">
-              <div class="comment-header">
-                <span class="comment-user">You</span>
-                <span class="comment-time">just now</span>
-              </div>
-              <div class="comment-text">
-                <p>${commentText}</p>
-              </div>
-              <div class="comment-footer">
-                <div class="like-count">👍 0</div>
-              </div>
-            </div>
-          `;
-        commentsList.prepend(newComment);
-        commentInput.value = "";
-        console.log("New comment added successfully");
-      });
-      console.log("Comment button event listener added");
-    }
-
-    if (cancelBtn && commentInput) {
-      cancelBtn.addEventListener("click", function () {
-        console.log("Cancel button clicked");
-        commentInput.value = "";
-        console.log("Comment input cleared");
-      });
-      console.log("Cancel button event listener added");
-    }
-  });
-
-  console.log("Post Interactions JS initialization complete");
+    // console.log("Post Interactions JS initialization complete");
 });
