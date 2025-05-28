@@ -63,20 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    document.body.addEventListener("click", function (e) {
-        if (e.target.closest(".toggle-comments-btn")) {
-            var btn = e.target.closest(".toggle-comments-btn");
-            var postId = btn.getAttribute("data-post-id");
-            var commentSection = document.querySelector(
-                '.comment-section[data-post-id="' + postId + '"]'
-            );
-            if (commentSection) {
-                commentSection.classList.toggle("hidden");
-            }
-            e.stopPropagation();
-        }
-    });
-
     // Post actions menu functionality
     document.body.addEventListener("click", function (e) {
         // Handle dot menu button click

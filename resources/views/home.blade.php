@@ -229,7 +229,6 @@
     <script src="js/auth.js"></script>
     <script src="js/post-buttons.js"></script>
     <script src="js/post-interactions.js"></script>
-    <script src="js/comment-interactions.js"></script>
     <script src="{{ asset('js/notification.js') }}"></script>
 
     {{-- Remove the type="module" from these scripts --}}

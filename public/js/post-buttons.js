@@ -53,18 +53,13 @@ function showModal(modalId) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // console.log("Initializing post interactions...");
-
     // Fix: Use correct selector for dot menu buttons
     const dotButtons = document.querySelectorAll(".dot-menu-btn");
-    // console.log(`Found ${dotButtons.length} dot menu buttons`);
 
     dotButtons.forEach((button, index) => {
         button.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
-
-            // console.log(`Dot menu button ${index} clicked`);
 
             // Close all other dropdowns first
             document.querySelectorAll(".dropdown-menu").forEach((dropdown) => {
@@ -77,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const dropdown = button.nextElementSibling;
             if (dropdown && dropdown.classList.contains("dropdown-menu")) {
                 dropdown.classList.toggle("hidden");
-                // console.log(`Dropdown toggled for button ${index}`);
             } else {
                 console.error(`Dropdown not found for button ${index}`);
             }
@@ -95,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Handle dropdown menu items
     const menuItems = document.querySelectorAll(".dropdown-menu a");
-    // console.log(`Found ${menuItems.length} menu items`);
 
     menuItems.forEach((item) => {
         item.addEventListener("click", async function (e) {
@@ -214,76 +207,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Fix comment button functionality
-    const toggleCommentBtns = document.querySelectorAll(".toggle-comments-btn");
-    // console.log(`Found ${toggleCommentBtns.length} comment toggle buttons`);
-
-    toggleCommentBtns.forEach((btn, index) => {
-        // console.log(`Setting up comment button ${index}:`, btn);
-
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // console.log(`Comment button ${index} clicked`);
-
-            const postId = this.getAttribute("data-post-id");
-            // console.log(`Post ID: ${postId}`);
-
-            if (!postId) {
-                console.error("No post ID found for comment button");
-                return;
-            }
-
-            const commentSection = document.querySelector(
-                `.comment-section[data-post-id="${postId}"]`
-            );
-            // console.log(`Comment section found:`, commentSection);
-
-            if (commentSection) {
-                const isCurrentlyHidden =
-                    commentSection.classList.contains("hidden");
-                commentSection.classList.toggle("hidden");
-
-                // console.log(
-                //     `Comment section ${
-                //         isCurrentlyHidden ? "shown" : "hidden"
-                //     } for post ${postId}`
-                // );
-
-                // Update button appearance
-                const icon = this.querySelector("i");
-                if (icon) {
-                    if (isCurrentlyHidden) {
-                        icon.style.color = "#007bff";
-                        this.classList.add("active");
-                    } else {
-                        icon.style.color = "";
-                        this.classList.remove("active");
-                    }
-                }
-
-                // If showing comments, scroll into view
-                if (isCurrentlyHidden) {
-                    setTimeout(() => {
-                        commentSection.scrollIntoView({
-                            behavior: "smooth",
-                            block: "nearest",
-                        });
-                    }, 100);
-                }
-            } else {
-                console.error(
-                    `Comment section not found for post ID: ${postId}`
-                );
-                // console.log(
-                //     "Available comment sections:",
-                //     document.querySelectorAll(".comment-section")
-                // );
-            }
-        });
-    });
-
     // Handle reply toggles
     const toggleRepliesButtons = document.querySelectorAll(".toggle-replies");
     toggleRepliesButtons.forEach((btn) => {
@@ -306,49 +229,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     : `View replies ${replyCount > 0 ? replyCount : ""}`;
             }
         });
-    });
-
-    // Handle comment form submissions
-    const commentForms = document.querySelectorAll(".comment-form");
-    commentForms.forEach((form) => {
-        const textarea = form.querySelector("textarea");
-        const commentBtn = form.querySelector(".comment-btn");
-        const cancelBtn = form.querySelector(".cancel-btn");
-
-        if (commentBtn && textarea) {
-            commentBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                const content = textarea.value.trim();
-
-                if (content) {
-                    // console.log("Submitting comment:", content);
-
-                    // Here you would send to backend
-                    // For now, just clear and show success
-                    textarea.value = "";
-                    sessionStorage.setItem(
-                        "notification",
-                        "Comment posted successfully!"
-                    );
-                    sessionStorage.setItem("notificationType", "success");
-                    showNotificationFromStorage();
-                } else {
-                    sessionStorage.setItem(
-                        "notification",
-                        "Please enter a comment"
-                    );
-                    sessionStorage.setItem("notificationType", "error");
-                    showNotificationFromStorage();
-                }
-            });
-        }
-
-        if (cancelBtn && textarea) {
-            cancelBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                textarea.value = "";
-            });
-        }
     });
 
     // Helper function to show notifications
@@ -387,6 +267,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Show any pending notifications from sessionStorage
     showNotificationFromStorage();
-
-    // console.log("Post Interactions JS initialization complete");
 });

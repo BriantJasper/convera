@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     }">
                                         <i class="fa fa-thumbs-up"></i>
                                     </button>
-                                    <span>0</span>
+                                    <span class="like-count">0</span>
                                 </div>
                             </div>
                         </div>
@@ -137,43 +137,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 commentsList.insertAdjacentHTML("afterbegin", commentHtml);
                 textarea.value = "";
-
-                // Add event listener to the new like button
-                const newLikeButton = commentsList.querySelector(
-                    `[data-comment-id="${comment.id}"] .reaction-btn`
-                );
-                if (newLikeButton) {
-                    newLikeButton.addEventListener("click", async function (e) {
-                        e.preventDefault();
-                        try {
-                            const response = await fetch(
-                                `/comments/${comment.id}/like`,
-                                {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": document.querySelector(
-                                            'meta[name="csrf-token"]'
-                                        ).content,
-                                    },
-                                }
-                            );
-
-                            const data = await response.json();
-                            if (data.success) {
-                                this.nextElementSibling.textContent =
-                                    data.likes_count;
-                                if (data.liked) {
-                                    this.classList.add("liked");
-                                } else {
-                                    this.classList.remove("liked");
-                                }
-                            }
-                        } catch (error) {
-                            console.error("Error:", error);
-                        }
-                    });
-                }
 
                 // Update comment count
                 const commentCount = document.querySelector(
@@ -203,69 +166,146 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Handle comment section toggle
     document.body.addEventListener("click", function (e) {
-        if (e.target.closest(".toggle-comments-btn")) {
-            const button = e.target.closest(".toggle-comments-btn");
-            const postId = button.dataset.postId;
-            const commentSection = document.querySelector(
-                `.comment-section[data-post-id="${postId}"]`
+        const toggleBtn = e.target.closest(".toggle-comments-btn");
+        if (!toggleBtn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log("Comment toggle clicked!"); // Debug log
+
+        // Check if user is authenticated
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            console.log("User not authenticated, showing auth modal");
+            showAuthModal();
+            return;
+        }
+
+        // For authenticated users, toggle the comment section
+        const postId = toggleBtn.dataset.postId;
+        console.log("Post ID:", postId);
+
+        if (!postId) {
+            console.error("No post ID found on toggle button");
+            return;
+        }
+
+        const commentSection = document.querySelector(
+            `.comment-section[data-post-id="${postId}"]`
+        );
+        console.log("Comment section found:", !!commentSection);
+
+        if (commentSection) {
+            commentSection.classList.toggle("hidden");
+            console.log(
+                "Comment section toggled, hidden:",
+                commentSection.classList.contains("hidden")
             );
-            if (commentSection) {
-                commentSection.classList.toggle("hidden");
-            }
+        } else {
+            console.error(`Comment section not found for post ID: ${postId}`);
         }
     });
 
-    // Handle comment likes
+    // Handle comment likes - using event delegation for all comments (existing and new)
     document.body.addEventListener("click", async function (e) {
-        if (e.target.closest(".comment .reaction-btn")) {
-            e.preventDefault();
-            const button = e.target.closest(".comment .reaction-btn");
+        const button = e.target.closest(
+            ".comment .reaction-btn[data-comment-id]"
+        );
+        if (!button) return;
 
-            // Check if user is authenticated
-            if (!document.querySelector('meta[name="csrf-token"]')) {
-                const authModal = document.getElementById("authModal");
-                const loginForm = document.getElementById("loginForm");
-                const registerForm = document.getElementById("registerForm");
+        e.preventDefault();
+        e.stopPropagation(); // Prevent any parent event handlers
 
-                if (authModal) {
-                    authModal.classList.remove("hidden");
-                    loginForm.classList.remove("hidden");
-                    registerForm.classList.add("hidden");
-                    document.body.style.overflow = "hidden";
-                }
-                return;
+        // Check if user is authenticated
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            const authModal = document.getElementById("authModal");
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+
+            if (authModal) {
+                authModal.classList.remove("hidden");
+                loginForm.classList.remove("hidden");
+                registerForm.classList.add("hidden");
+                document.body.style.overflow = "hidden";
             }
+            return;
+        }
 
-            const commentId = button.dataset.commentId;
-            const likeCount = button.nextElementSibling;
+        const commentId = button.dataset.commentId;
+        const likeCount = button.nextElementSibling;
 
-            try {
-                const response = await fetch(`/comments/${commentId}/like`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]'
-                        ).content,
-                    },
-                });
+        // Prevent multiple clicks
+        if (button.disabled) return;
+        button.disabled = true;
 
-                const data = await response.json();
+        try {
+            const response = await fetch(`/comments/${commentId}/like`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+            });
 
-                if (data.success) {
-                    // Update like count
-                    likeCount.textContent = data.likes_count;
+            const data = await response.json();
 
-                    // Toggle liked class
-                    if (data.liked) {
-                        button.classList.add("liked");
-                    } else {
-                        button.classList.remove("liked");
-                    }
+            if (data.success) {
+                // Update like count
+                likeCount.textContent = data.likes_count;
+
+                // Toggle liked class
+                if (data.liked) {
+                    button.classList.add("liked");
+                } else {
+                    button.classList.remove("liked");
                 }
-            } catch (error) {
-                console.error("Error:", error);
             }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            // Re-enable the button
+            button.disabled = false;
+        }
+    });
+
+    // Handle show comments button
+    document.body.addEventListener("click", function (e) {
+        const showCommentsBtn = e.target.closest(".show-comments-btn");
+        if (!showCommentsBtn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log("Show comments button clicked!"); // Debug log
+
+        // Check if user is authenticated
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            console.log("User not authenticated, showing auth modal");
+            showAuthModal();
+            return;
+        }
+
+        // Find the comment section
+        const commentSection = document.querySelector(".comment-section");
+        console.log("Comment section found:", !!commentSection);
+
+        if (commentSection) {
+            commentSection.classList.toggle("hidden");
+            console.log(
+                "Comment section toggled, hidden:",
+                commentSection.classList.contains("hidden")
+            );
+
+            // Update button text
+            showCommentsBtn.textContent = commentSection.classList.contains(
+                "hidden"
+            )
+                ? "Show Comments"
+                : "Hide Comments";
+        } else {
+            console.error("Comment section not found");
         }
     });
 });

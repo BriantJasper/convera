@@ -240,8 +240,6 @@
 @endsection
 
 @section('import-js')
-    <script src="{{ asset('js/comments.js') }}"></script>
-    <script src="{{ asset('js/CommentSection.js') }}"></script>
     <script src="{{ asset('js/post-buttons.js') }}"></script>
     <script src="{{ asset('js/post-interactions.js') }}"></script>
     <script src="{{ asset('js/home.js') }}"></script>
@@ -258,40 +256,26 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Comment toggle functionality
-            document.body.addEventListener("click", function(e) {
-                if (e.target.closest(".toggle-comments-btn")) {
-                    var btn = e.target.closest(".toggle-comments-btn");
-                    var postId = btn.getAttribute("data-post-id");
-                    var commentSection = document.querySelector(
-                        '.comment-section[data-post-id="' + postId + '"]'
-                    );
-                    if (commentSection) {
-                        commentSection.classList.toggle("hidden");
-                    }
-                    e.stopPropagation();
+            // Remove duplicate comment toggle functionality
+            function dismissNotification() {
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }
+            }
+
+            // Show notification when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 100);
                 }
             });
-        });
-
-        function dismissNotification() {
-            const notification = document.getElementById('notification');
-            if (notification) {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }
-        }
-
-        // Show notification when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const notification = document.getElementById('notification');
-            if (notification) {
-                setTimeout(() => {
-                    notification.classList.add('show');
-                }, 100);
-            }
         });
     </script>
 @endsection
