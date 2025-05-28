@@ -10,7 +10,13 @@ class Tag extends Model
     /** @use HasFactory<\Database\Factories\TagFactory> */
     use HasFactory;
 
-    public function communities() {
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function communities()
+    {
         return $this->belongsToMany(Community::class);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\SavedPost;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -13,7 +14,12 @@ class SavedPostSeeder extends Seeder
      */
     public function run(): void
     {
-        SavedPost::factory()->count(30)->create(); // User's Saved Post
-
+        User::all()->each(function (User $user) {
+            $postIds = \App\Models\Post::inRandomOrder()
+                ->take(rand(1, 5))
+                ->pluck('id')
+                ->toArray();
+            $user->savedPosts()->syncWithoutDetaching($postIds);
+        });
     }
 }

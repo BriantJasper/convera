@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Community;
 use App\Http\Requests\StoreCommunityRequest;
 use App\Http\Requests\UpdateCommunityRequest;
+use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
@@ -33,11 +34,16 @@ class CommunityController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified community.
      */
     public function show(Community $community)
     {
-        //
+        $community->load(['posts.user', 'posts.comments', 'posts.reactions']);
+
+        return view('community.show', [
+            'title' => $community->name,
+            'community' => $community
+        ]);
     }
 
     /**
