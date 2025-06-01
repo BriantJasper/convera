@@ -197,4 +197,46 @@ class PostController extends Controller
 
         return response()->json($communities);
     }
+
+    public function save(Post $post)
+    {
+        $user = Auth::user();
+
+        if ($post->savedBy->contains($user->id)) {
+            $post->savedBy()->detach($user->id);
+            $saved = false;
+        } else {
+            $post->savedBy()->attach($user->id);
+            $saved = true;
+        }
+
+        return response()->json([
+            'success' => true,
+            'saved' => $saved
+        ]);
+    }
+
+    public function checkSaved(Post $post)
+    {
+        $user = Auth::user();
+        $saved = $post->savedBy->contains($user->id);
+
+        return response()->json([
+            'saved' => $saved
+        ]);
+    }
+
+    public function savedPost()
+    {
+        $user = Auth::user();
+        $savedPosts = $user->savedPosts()
+            ->with(['user', 'community', 'tags', 'comments.user', 'comments.replies.user', 'reactions'])
+            ->latest()
+            ->get();
+
+        return view('savedPost', [
+            'title' => 'Saved Posts',
+            'savedPosts' => $savedPosts
+        ]);
+    }
 }

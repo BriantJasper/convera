@@ -13,7 +13,7 @@ class SavedPostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class SavedPostPolicy
      */
     public function view(User $user, SavedPost $savedPost): bool
     {
-        return false;
+        return $user->id === $savedPost->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class SavedPostPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class SavedPostPolicy
      */
     public function update(User $user, SavedPost $savedPost): bool
     {
-        return false;
+        return $user->id === $savedPost->user_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class SavedPostPolicy
      */
     public function delete(User $user, SavedPost $savedPost): bool
     {
-        return false;
+        return $user->id === $savedPost->user_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class SavedPostPolicy
      */
     public function restore(User $user, SavedPost $savedPost): bool
     {
-        return false;
+        return $user->id === $savedPost->user_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class SavedPostPolicy
      */
     public function forceDelete(User $user, SavedPost $savedPost): bool
     {
-        return false;
+        return $user->id === $savedPost->user_id;
     }
 }

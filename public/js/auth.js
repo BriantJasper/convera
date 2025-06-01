@@ -7,6 +7,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
 
+    // Function to check authentication and show modal if needed
+    function handleAuthRequiredClick(e) {
+        const isAuthenticated =
+            document.querySelector('form[action*="logout"]') !== null;
+
+        if (!isAuthenticated) {
+            e.preventDefault();
+            showAuthModal();
+        }
+    }
+
+    // Handle saved posts link click for unauthenticated users
+    const savedPostsLink = document.getElementById("savedPostsLink");
+    if (savedPostsLink) {
+        savedPostsLink.addEventListener("click", handleAuthRequiredClick);
+    }
+
+    // Handle settings link click for unauthenticated users
+    const settingsLink = document.getElementById("settingsLink");
+    if (settingsLink) {
+        settingsLink.addEventListener("click", handleAuthRequiredClick);
+    }
+
     // Handle create post buttons for unauthenticated users
     const createPostButtons = document.querySelectorAll("#createPostBtn");
     createPostButtons.forEach((button) => {

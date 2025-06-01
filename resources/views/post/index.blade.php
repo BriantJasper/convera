@@ -1,46 +1,8 @@
 @extends('partials.main')
 
 @section('import-css')
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/neuromorphism.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/post-buttons.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/comments.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/notification.css') }}" />
-    <style>
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: #1a2332;
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-            transform: translateX(120%);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            margin-left: 15px;
-            font-size: 20px;
-        }
-
-        .notification .message {
-            margin-right: 10px;
-        }
-    </style>
 @endsection
 
 @section('main-content')
@@ -65,7 +27,8 @@
             <img src="{{ $post->user?->avatar ?? asset('images/users.png') }}"
                 alt="{{ $post->user?->name ?? 'Deleted User' }}" class="post-profile-img" />
             <div class="post-info">
-                <div class="post-author">{{ $post->user?->name ?? 'Deleted User' }}</div>
+                <div class="post-author" data-user-id="{{ $post->user?->id }}">{{ $post->user?->name ?? 'Deleted User' }}
+                </div>
                 <div class="post-time">
                     {{ $post->created_at?->diffForHumans() ?? 'Unknown time' }} in
                     <a
@@ -73,36 +36,17 @@
                 </div>
             </div>
             <div class="post-actions-container">
-                @if (Auth::check() && Auth::id() !== $post->user_id)
-                    <button class="follow-btn not-following" id="followBtn">
+                @auth
+                    <button
+                        class="follow-btn {{ auth()->user() && auth()->user()->isFollowing($post->user) ? 'following' : 'not-following' }}"
+                        data-post-id="{{ $post->id }}">
+                        {{ auth()->user() && auth()->user()->isFollowing($post->user) ? 'Following' : 'Follow' }}
+                    </button>
+                @else
+                    <button class="follow-btn auth-required" onclick="showAuthModal()">
                         Follow
                     </button>
-                @endif
-                @if (Auth::check() && Auth::id() === $post->user_id)
-                    <div class="post-actions-menu relative">
-                        <button class="dot-menu-btn">
-                            <i class="fa fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu hidden">
-                            <a href="#" class="save-post">
-                                <i class="fa fa-bookmark"></i> Save
-                            </a>
-                            <a href="{{ route('posts.edit', $post->slug) }}" class="edit-post">
-                                <i class="fa fa-edit"></i> Edit
-                            </a>
-                            <a href="#" class="delete-post" data-post-id="{{ $post->id }}"
-                                data-post-slug="{{ $post->slug }}">
-                                <i class="fa fa-trash"></i> Delete
-                            </a>
-                            <a href="#" class="hide-post">
-                                <i class="fa fa-eye-slash"></i> Hide
-                            </a>
-                            <a href="#" class="report-post">
-                                <i class="fa fa-flag"></i> Report
-                            </a>
-                        </div>
-                    </div>
-                @endif
+                @endauth
             </div>
         </div>
 
@@ -147,7 +91,9 @@
                 <span>{{ $post->comments->count() }}</span>
             </div>
             <div class="engagement-action">
-                <button><i class="fa fa-share"></i> Share</button>
+                <button class="share-btn" data-post-id="{{ $post->id }}">
+                    <i class="fa fa-share"></i> Share
+                </button>
             </div>
             <div class="engagement-action">
                 @auth
@@ -183,9 +129,9 @@
 
         <div class="comments-list">
             @foreach ($post->comments as $comment)
-                <div class="comment" data-comment-id="{{ $comment->id }}">
-                    <img src="{{ $comment->user?->avatar ?? asset('images/users.png') }}"
-                        alt="{{ $comment->user?->name ?? 'Deleted User' }}" class="comment-profile-img" />
+                <div class="comment">
+                    <img src="{{ $comment->user?->avatar ?? asset('images/users.png') }}" alt="User"
+                        class="comment-profile-img" />
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-user">{{ $comment->user?->name ?? 'Deleted User' }}</span>
@@ -193,12 +139,17 @@
                                 class="comment-time">{{ $comment->created_at?->diffForHumans() ?? 'Unknown time' }}</span>
                         </div>
                         <div class="comment-text">
-                            <p>{{ $comment->content }}</p>
+                            <p>
+                                {{ $comment->content }}
+                            </p>
                         </div>
                         <div class="comment-footer">
-                            @if ($comment->replies->count() > 0)
-                                <button class="toggle-replies">View replies {{ $comment->replies->count() }}</button>
-                            @endif
+                            <div class="comment-actions">
+                                @if ($comment->replies->count() > 0)
+                                    <button class="toggle-replies">View replies {{ $comment->replies->count() }}</button>
+                                @endif
+                                <button class="reply-trigger">Reply</button>
+                            </div>
                             <div class="engagement-action">
                                 @auth
                                     <button
@@ -216,15 +167,13 @@
                         </div>
                     </div>
                 </div>
-
                 @if ($comment->replies->count() > 0)
-                    <div class="replies hidden">
+                    <div class="replies hidden" data-comment-id="{{ $comment->id }}">
                         @foreach ($comment->replies as $reply)
                             <div class="reply">
-                                <img src="{{ $reply->user?->avatar ?? asset('images/users.png') }}"
-                                    alt="{{ $reply->user?->name ?? 'Deleted User' }}" class="comment-profile-img" />
-                                <div>
-                                    <strong>{{ $reply->user?->name ?? 'Deleted User' }}</strong> {{ $reply->content }}
+                                <img src="{{ $reply->user?->avatar ?? asset('images/users.png') }}" alt="Reply User"
+                                    class="comment-profile-img" />
+                                <div><strong>{{ $reply->user?->name ?? 'Deleted User' }}</strong> {{ $reply->content }}
                                 </div>
                             </div>
                         @endforeach
@@ -240,13 +189,8 @@
 @endsection
 
 @section('import-js')
-    <script src="{{ asset('js/comments.js') }}"></script>
-    <script src="{{ asset('js/CommentSection.js') }}"></script>
     <script src="{{ asset('js/post-buttons.js') }}"></script>
     <script src="{{ asset('js/post-interactions.js') }}"></script>
-    <script src="{{ asset('js/home.js') }}"></script>
-    <script src="{{ asset('js/notification.js') }}"></script>
-    <script src="{{ asset('js/post.js') }}"></script>
     <script type="module" src="{{ asset('js/modal.js') }}"></script>
     <script type="module">
         import {
@@ -258,40 +202,26 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Comment toggle functionality
-            document.body.addEventListener("click", function(e) {
-                if (e.target.closest(".toggle-comments-btn")) {
-                    var btn = e.target.closest(".toggle-comments-btn");
-                    var postId = btn.getAttribute("data-post-id");
-                    var commentSection = document.querySelector(
-                        '.comment-section[data-post-id="' + postId + '"]'
-                    );
-                    if (commentSection) {
-                        commentSection.classList.toggle("hidden");
-                    }
-                    e.stopPropagation();
+            // Remove duplicate comment toggle functionality
+            function dismissNotification() {
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }
+            }
+
+            // Show notification when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 100);
                 }
             });
-        });
-
-        function dismissNotification() {
-            const notification = document.getElementById('notification');
-            if (notification) {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }
-        }
-
-        // Show notification when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const notification = document.getElementById('notification');
-            if (notification) {
-                setTimeout(() => {
-                    notification.classList.add('show');
-                }, 100);
-            }
         });
     </script>
 @endsection

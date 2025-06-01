@@ -29,7 +29,6 @@
 }
 
 .comment-section {
-    padding-top: 20px;
     transition: all 0.3s ease;
     max-height: 2000px;
     overflow: hidden;
@@ -42,6 +41,10 @@
     margin-top: 0;
     opacity: 0;
     overflow: hidden;
+}
+
+.comment-section:not(.hidden) {
+    animation: fadeIn 0.3s ease forwards;
 }
 
 .show-comments-btn {
@@ -288,8 +291,4 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.comment-section:not(.hidden) {
-    animation: fadeIn 0.3s ease forwards;
 }
