@@ -161,3 +161,26 @@
     font-size: 0.9em;
     color: #666;
 }
+
+.save-post-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.save-post-btn:hover {
+    background-color: #2c3b52;
+    color: #e5e7eb;
+}
+
+.save-post-btn.saved {
+    color: #3b82f6;
+}
+
+.save-post-btn.saved:hover {
+    color: #2563eb;
+}

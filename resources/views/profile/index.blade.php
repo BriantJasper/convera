@@ -75,25 +75,33 @@
         <div class="tab-content active" id="posts">
             <div class="posts-grid">
                 @forelse ($posts as $post)
-                    <div class="post-card">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="post-card">
                         <div class="post-card-header">
                             <div class="post-date">{{ $post->created_at->diffForHumans() }}</div>
-                            {{-- <button class="action-btn">
-                                <i class="fa fa-ellipsis-h"></i>
-                            </button> --}}
                         </div>
                         <div class="post-card-content">
                             {{ $post->content }}
                         </div>
-                        @if ($post->image)
+                        @isset($post->image)
                             <img src="{{ asset($post->image) }}" alt="Post Image" class="post-card-image" />
-                        @endif
+                        @endisset
                         <div class="post-card-stats">
-                            <span>❤️ {{ $post->likes->count() }} likes</span>
-                            <span>💬 {{ $post->comments->count() }} comments</span>
-                            {{-- <span>🔄 12 shares</span> --}}
+                            <div class="engagement-action">
+                                <button
+                                    class="reaction-btn {{ auth()->user() && $post->isLikedBy(auth()->user()) ? 'liked' : '' }}"
+                                    data-post-id="{{ $post->id }}">
+                                    <i class="fa fa-thumbs-up"></i>
+                                </button>
+                                <span class="like-count">{{ $post->likes->count() }}</span>
+                            </div>
+                            <div class="engagement-action">
+                                <button class="comment-btn">
+                                    <i class="fa fa-comment"></i>
+                                </button>
+                                <span>{{ $post->comments->count() }}</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <p>No posts found.</p>
                 @endforelse
@@ -104,15 +112,27 @@
         <div class="tab-content" id="media">
             <div class="posts-grid">
                 @forelse ($mediaPosts as $post)
-                    <div class="post-card">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="post-card">
                         @if ($post->image)
                             <img src="{{ asset($post->image) }}" alt="Post Image" class="post-card-image" />
                         @endif
                         <div class="post-card-stats">
-                            <span>❤️ {{ $post->likes->count() }} likes</span>
-                            <span>💬 {{ $post->comments->count() }} comments</span>
+                            <div class="engagement-action">
+                                <button
+                                    class="reaction-btn {{ auth()->user() && $post->isLikedBy(auth()->user()) ? 'liked' : '' }}"
+                                    data-post-id="{{ $post->id }}">
+                                    <i class="fa fa-thumbs-up"></i>
+                                </button>
+                                <span class="like-count">{{ $post->likes->count() }}</span>
+                            </div>
+                            <div class="engagement-action">
+                                <button class="comment-btn">
+                                    <i class="fa fa-comment"></i>
+                                </button>
+                                <span>{{ $post->comments->count() }}</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <p>No media posts found.</p>
                 @endforelse
@@ -123,7 +143,7 @@
         <div class="tab-content" id="likes">
             <div class="posts-grid">
                 @forelse ($likedPosts as $post)
-                    <div class="post-card">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="post-card">
                         <div class="post-card-header">
                             <div class="post-date">Liked {{ $post->created_at->diffForHumans() }}</div>
                         </div>
@@ -134,11 +154,14 @@
                             <img src="{{ asset($post->image) }}" alt="Post Image" class="post-card-image" />
                         @endif
                         <div class="post-card-stats">
-                            <span>By <a href="{{ route('profile.index', $post->user) }}"
-                                    class="text-blue-500 hover:underline">@<span>{{ explode('@', $post->user->email)[0] }}</span></a></span>
-                            <span>❤️ {{ $post->likes->count() }} likes</span>
+
+                            <span>By {{ $post->user->email }}</span>
+
+                            <span class="like-count">
+                                <i class="fa fa-thumbs-up"></i> {{ $post->likes->count() }}</span>
+
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <p>No liked posts found.</p>
                 @endforelse
@@ -228,7 +251,7 @@
                         </div>
                         <div class="about-info flex-grow">
                             <h4>Website</h4>
-                            <p>{{ $user->website ? $user->website  : 'No website added.' }}
+                            <p>{{ $user->website ? $user->website : 'No website added.' }}
                             </p>
                         </div>
                         @if (Auth::user() && Auth::user()->id === $user->id)

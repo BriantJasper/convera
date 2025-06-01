@@ -53,6 +53,92 @@ function showModal(modalId) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Check saved posts state on page load
+    const savedPostButtons = document.querySelectorAll(
+        ".save-post-btn[data-post-id]"
+    );
+    savedPostButtons.forEach(async (btn) => {
+        const postId = btn.getAttribute("data-post-id");
+        try {
+            const response = await fetch(`/posts/${postId}/check-saved`, {
+                method: "GET",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+            });
+            const data = await response.json();
+            updateSaveButtonState(btn, data.saved);
+        } catch (error) {
+            console.error("Error checking saved state:", error);
+        }
+    });
+
+    // Helper function to update save button state
+    function updateSaveButtonState(button, isSaved) {
+        if (isSaved) {
+            button.classList.add("saved");
+            button.innerHTML =
+                '<i class="fa fa-bookmark fa-solid" style="color: #3b82f6;"></i> Saved';
+        } else {
+            button.classList.remove("saved");
+            button.innerHTML =
+                '<i class="fa fa-bookmark fa-regular" style="color: #9ca3af;"></i> Save';
+        }
+    }
+
+    // Add click event listeners to all save buttons
+    document.body.addEventListener("click", async function (e) {
+        const saveBtn = e.target.closest(".save-post-btn");
+        if (!saveBtn || saveBtn.closest(".dropdown-menu")) return; // Skip if button is inside dropdown menu
+
+        e.preventDefault();
+        const postId = saveBtn.getAttribute("data-post-id");
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/posts/${postId}/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                // Update all save buttons for this post
+                document
+                    .querySelectorAll(
+                        `.save-post-btn[data-post-id="${postId}"]`
+                    )
+                    .forEach((btn) => {
+                        updateSaveButtonState(btn, data.saved);
+                    });
+
+                sessionStorage.setItem(
+                    "notification",
+                    data.saved
+                        ? "Post saved to your bookmarks"
+                        : "Post removed from your bookmarks"
+                );
+                sessionStorage.setItem("notificationType", "success");
+                showNotificationFromStorage();
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            sessionStorage.setItem(
+                "notification",
+                "An error occurred while saving the post"
+            );
+            sessionStorage.setItem("notificationType", "error");
+            showNotificationFromStorage();
+        }
+    });
+
     // Fix: Use correct selector for dot menu buttons
     const dotButtons = document.querySelectorAll(".dot-menu-btn");
 
@@ -105,13 +191,50 @@ document.addEventListener("DOMContentLoaded", function () {
                 dropdown.classList.add("hidden");
             }
 
-            if (this.classList.contains("save-post")) {
-                sessionStorage.setItem(
-                    "notification",
-                    "Post saved to your bookmarks"
-                );
-                sessionStorage.setItem("notificationType", "success");
-                showNotificationFromStorage();
+            if (this.classList.contains("save-post-btn")) {
+                const postId = this.getAttribute("data-post-id");
+                if (!postId) return;
+
+                try {
+                    const response = await fetch(`/posts/${postId}/save`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector(
+                                'meta[name="csrf-token"]'
+                            ).content,
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        // Update all save buttons for this post
+                        document
+                            .querySelectorAll(
+                                `.save-post-btn[data-post-id="${postId}"]`
+                            )
+                            .forEach((btn) => {
+                                updateSaveButtonState(btn, data.saved);
+                            });
+
+                        sessionStorage.setItem(
+                            "notification",
+                            data.saved
+                                ? "Post saved to your bookmarks"
+                                : "Post removed from your bookmarks"
+                        );
+                        sessionStorage.setItem("notificationType", "success");
+                        showNotificationFromStorage();
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    sessionStorage.setItem(
+                        "notification",
+                        "An error occurred while saving the post"
+                    );
+                    sessionStorage.setItem("notificationType", "error");
+                    showNotificationFromStorage();
+                }
             } else if (this.classList.contains("delete-post")) {
                 const postId = this.getAttribute("data-post-id");
                 const postSlug = this.getAttribute("data-post-slug");
@@ -200,33 +323,6 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (this.classList.contains("report-post")) {
                 const postElement = this.closest(".post");
                 const postId = postElement?.getAttribute("data-post-id");
-                if (postId) {
-                    window.location.href = `/report/${postId}`;
-                }
-            }
-        });
-    });
-
-    // Handle reply toggles
-    const toggleRepliesButtons = document.querySelectorAll(".toggle-replies");
-    toggleRepliesButtons.forEach((btn) => {
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const comment = this.closest(".comment");
-            if (!comment) return;
-
-            let replies = comment.parentElement.querySelector(".replies");
-
-            if (replies) {
-                const isHidden = replies.classList.contains("hidden");
-                replies.classList.toggle("hidden");
-
-                const replyCount = replies.querySelectorAll(".reply").length;
-                this.textContent = isHidden
-                    ? "Hide replies"
-                    : `View replies ${replyCount > 0 ? replyCount : ""}`;
             }
         });
     });
@@ -267,4 +363,86 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Show any pending notifications from sessionStorage
     showNotificationFromStorage();
+
+    // Follow button functionality
+    const followButtons = document.querySelectorAll(".follow-btn");
+
+    followButtons.forEach((button) => {
+        button.addEventListener("click", async function (e) {
+            e.preventDefault();
+
+            if (this.classList.contains("auth-required")) {
+                showAuthModal();
+                return;
+            }
+
+            const postId = this.dataset.postId;
+            const post =
+                document.querySelector(`.post[data-post-id="${postId}"]`) ||
+                document.querySelector(
+                    `.post-detail[data-post-id="${postId}"]`
+                );
+
+            if (!post) {
+                console.error("Post container not found");
+                return;
+            }
+
+            const userId = post.querySelector(".post-author").dataset.userId;
+            if (!userId) {
+                console.error("User ID not found");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/follow/${userId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === "followed") {
+                    this.textContent = "Following";
+                    this.classList.remove("not-following");
+                    this.classList.add("following");
+                    sessionStorage.setItem(
+                        "notification",
+                        "You are now following this user"
+                    );
+                    sessionStorage.setItem("notificationType", "success");
+                } else if (data.status === "unfollowed") {
+                    this.textContent = "Follow";
+                    this.classList.remove("following");
+                    this.classList.add("not-following");
+                    sessionStorage.setItem(
+                        "notification",
+                        "You have unfollowed this user"
+                    );
+                    sessionStorage.setItem("notificationType", "success");
+                } else {
+                    throw new Error(data.message || "An error occurred");
+                }
+
+                showNotificationFromStorage();
+            } catch (error) {
+                console.error("Error:", error);
+                sessionStorage.setItem(
+                    "notification",
+                    "An error occurred while processing your request"
+                );
+                sessionStorage.setItem("notificationType", "error");
+                showNotificationFromStorage();
+            }
+        });
+    });
 });

@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->string('tags')->nullable();
             $table->text('rules')->nullable();
+            $table->string('avatar')->nullable()->default(null);
+            $table->boolean('is_private')->default(false);
+            $table->boolean('is_verified')->default(false);
+            $table->boolean('is_trending')->default(false);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

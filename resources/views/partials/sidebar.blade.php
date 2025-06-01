@@ -1,22 +1,23 @@
       <div class="sidebar">
           <nav class="main-nav">
-              <a href="{{ route('home') }}" class="nav-item active">
+              <a href="{{ route('home') }}" class="nav-item {{ $title == 'Home' ? 'active' : '' }}">
                   <i class="fa fa-home"></i>
                   <span>Home</span>
               </a>
-              <a href="pages/explore.html" class="nav-item">
+              <a href="{{ route('explore') }}" class="nav-item">
                   <i class="fa fa-compass"></i>
                   <span>Explore</span>
               </a>
-              <a href="pages/communities.html" class="nav-item">
+              <a href="{{ route('community.index') }}" class="nav-item">
                   <i class="fa fa-users"></i>
                   <span>Communities</span>
               </a>
-              <a href="pages/saved.html" class="nav-item">
+              <a href="{{ route('posts.saved') }}" class="nav-item {{ $title == 'Saved Posts' ? 'active' : '' }}"
+                  id="savedPostsLink">
                   <i class="fa fa-bookmark"></i>
                   <span>Saved</span>
               </a>
-              <a href="pages/settings.html" class="nav-item">
+              <a href="{{ route('settings') }}" class="nav-item" id="settingsLink">
                   <i class="fa fa-cog"></i>
                   <span>Settings</span>
               </a>

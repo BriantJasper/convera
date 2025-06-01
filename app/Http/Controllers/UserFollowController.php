@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\UserFollow;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreUserFollowRequest;
 use App\Http\Requests\UpdateUserFollowRequest;
 
@@ -62,5 +65,34 @@ class UserFollowController extends Controller
     public function destroy(UserFollow $userFollow)
     {
         //
+    }
+
+    public function toggleFollow(Request $request, $user_id)
+    {
+        try {
+            $user = Auth::user();
+            $followedUser = User::findOrFail($user_id);
+
+            if ($user->isFollowing($followedUser)) {
+                // Unfollow
+                $user->following()->detach($followedUser->id);
+                return response()->json([
+                    'status' => 'unfollowed',
+                    'message' => 'Unfollowed successfully'
+                ]);
+            } else {
+                // Follow
+                $user->following()->attach($followedUser->id);
+                return response()->json([
+                    'status' => 'followed',
+                    'message' => 'Followed successfully'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while processing your request'
+            ], 500);
+        }
     }
 }

@@ -27,6 +27,10 @@ class CommunityFactory extends Factory
             'slug' => Str::slug($name),
             'description' => $this->faker->paragraph,
             'rules' => $this->faker->optional()->paragraphs(2, true),
+            'avatar' => null, // Set to null to use default image
+            'is_private' => $this->faker->boolean(20), // 20% chance of being private
+            'is_verified' => $this->faker->boolean(30), // 30% chance of being verified
+            'is_trending' => $this->faker->boolean(15), // 15% chance of being trending
             'user_id' => User::inRandomOrder()->first()->id,
         ];
     }
